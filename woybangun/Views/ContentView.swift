@@ -61,7 +61,7 @@ struct ContentView: View {
 
                 // TEMPORARY — for verifying the session survives a night. Delete with the log.
                 Section {
-                    NavigationLink("Session Log") {
+                    NavigationLink("Diagnostics") {
                         SessionLogView()
                     }
                 }

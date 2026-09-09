@@ -6,9 +6,12 @@
 	<true/>
 	<key>NSAlarmKitUsageDescription</key>
 	<string>We’ll schedule alerts for the alarms you create in this app.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>woybangun turns on your wake light before the alarm goes off.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
+		<string>bluetooth-central</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
