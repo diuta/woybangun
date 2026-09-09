@@ -1,0 +1,4 @@
+# Wi-Fi credentials. Bare pattern so it keeps matching if the file is ever moved.
+config.h
+
+.DS_Store
