@@ -34,8 +34,17 @@ final class SleepSession {
     static let dawnLead: TimeInterval = 60 * 60
 
     private(set) var phase: Phase = .idle
+    private(set) var startedAt: Date?
     private(set) var dawnDate: Date?
     private(set) var endDate: Date?
+
+    /// How far through the night we are, 0…1, for the ruler on the main screen.
+    var progress: Double? {
+        guard let startedAt, let endDate else { return nil }
+        let total = endDate.timeIntervalSince(startedAt)
+        guard total > 0 else { return nil }
+        return min(max(Date.now.timeIntervalSince(startedAt) / total, 0), 1)
+    }
 
     @ObservationIgnored private let player = AmbiencePlayer()
     @ObservationIgnored private var ticker: Timer?
@@ -73,6 +82,7 @@ final class SleepSession {
         }
 
         let dawnStart = alarm.addingTimeInterval(-Self.dawnLead)
+        startedAt = .now
         endDate = alarm
         dawnDate = max(dawnStart, .now)
 
@@ -95,21 +105,16 @@ final class SleepSession {
         }
     }
 
-    /// `turningOffLight` is false when the alarm itself ends the session — the strip has just
-    /// reached full brightness, which is the moment it's actually doing its job.
-    func stop(turningOffLight: Bool = true) {
-        if turningOffLight {
-            Task { @MainActor in
-                let result = await LightController.shared.turnOff()
-                SessionLog.write("wake light — off → \(result)")
-            }
-        }
-
+    /// Ending the session never touches the light. Once the strip is lit it stays lit until
+    /// it's switched off by hand from Diagnostics — waking up shouldn't put you back in the
+    /// dark, and neither should ending the session early.
+    func stop() {
         ticker?.invalidate()
         ticker = nil
         player.stop()
 
         phase = .idle
+        startedAt = nil
         dawnDate = nil
         endDate = nil
         SessionLog.write("session ended")
@@ -126,7 +131,7 @@ final class SleepSession {
 
         if let end = endDate, Date.now >= end {
             SessionLog.write("reached alarm time")
-            stop(turningOffLight: false)
+            stop()
             return
         }
         if phase == .night, let due = dawnDate, Date.now >= due {

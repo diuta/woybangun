@@ -44,11 +44,11 @@ uint32_t rampStartMs    = 0;
 uint32_t rampDurationMs = 0;
 uint8_t  currentLevel   = 0;
 
-// After the ramp reaches full the strip holds, then switches itself off — otherwise a
-// missed "off" leaves it burning all day once you've left the house.
+// Once the ramp reaches full the strip simply stays lit. There is deliberately no timeout:
+// the only thing that turns it off is an explicit "off" command from the app's Diagnostics
+// screen. At the capped 300 mA budget that is wasteful at worst, never unsafe.
 bool     holding      = false;
 uint32_t holdStartMs  = 0;
-const uint32_t HOLD_MS = 30UL * 60UL * 1000UL;   // 30 minutes
 
 BLECharacteristic *statusChar = nullptr;
 
@@ -205,11 +205,6 @@ void loop() {
     } else {
       lightWrite((uint8_t)(255.0f * elapsed / rampDurationMs));
     }
-  } else if (holding && millis() - holdStartMs >= HOLD_MS) {
-    holding = false;
-    lightWrite(0);
-    publishStatus();
-    Serial.println("hold expired — light off");
   }
   delay(20);
 }

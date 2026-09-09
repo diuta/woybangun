@@ -47,6 +47,7 @@ final class AlarmStore {
             tintColor: .accentColor
         )
 
+        // `sound` is left at its default: AlarmKit's own alarm tone.
         _ = try await manager.schedule(
             id: UUID(),
             configuration: .alarm(schedule: schedule, attributes: attributes)

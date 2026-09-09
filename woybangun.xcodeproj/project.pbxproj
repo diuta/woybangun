@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		818DE31030503FAE00624D05 /* woybangun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = woybangun.app; path = "/Users/dimasputra/Uta/project 6/woybangun/build/Debug/woybangun.app"; sourceTree = "<absolute>"; };
+		81C4129C3051AE9B0042751E /* woybangun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = woybangun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -46,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				818DE31230503FAE00624D05 /* woybangun */,
+				81C4129C3051AE9B0042751E /* woybangun.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -71,7 +72,7 @@
 			packageProductDependencies = (
 			);
 			productName = woybangun;
-			productReference = 818DE31030503FAE00624D05 /* woybangun.app */;
+			productReference = 81C4129C3051AE9B0042751E /* woybangun.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
