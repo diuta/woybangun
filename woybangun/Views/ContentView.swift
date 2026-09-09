@@ -11,96 +11,148 @@ import SwiftUI
 struct ContentView: View {
     @State private var store = AlarmStore()
     @State private var time = Date()
+    @State private var isEditingTime = false
     @State private var errorMessage: String?
 
     private let session = SleepSession.shared
 
-    private var isSet: Bool { store.alarm != nil }
     private var isSleeping: Bool { session.phase != .idle }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    DatePicker("Time", selection: $time, displayedComponents: .hourAndMinute)
-                        .disabled(isSet)
+            VStack(spacing: 0) {
+                header
 
-                    if isSet {
-                        Button("Cancel Alarm", role: .destructive, action: cancelAlarm)
-                            .frame(maxWidth: .infinity)
-                    } else {
-                        Button("Set Alarm") {
-                            Task { await setAlarm() }
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                }
+                Spacer()
+                clock
+                Spacer()
 
-                Section {
-                    if isSleeping {
-                        LabeledContent("Playing", value: session.phase.rawValue)
-                        if session.phase == .night, let dawn = session.dawnDate {
-                            LabeledContent("Morning sounds at") {
-                                Text(dawn, format: .dateTime.hour().minute())
-                            }
-                        }
-                        Button("End Sleep", role: .destructive) {
-                            session.stop()
-                        }
-                        .frame(maxWidth: .infinity)
-                    } else {
-                        Button("Start Sleep", action: startSleep)
-                            .frame(maxWidth: .infinity)
-                            .disabled(!isSet)
-                    }
-                } header: {
-                    Text("Sleep")
-                } footer: {
-                    Text("Plays a soundscape until an hour before your alarm, then fades into morning sounds. Keep the phone charging, and don't swipe the app away — that stops the audio for good.")
-                }
-
-                // TEMPORARY — for verifying the session survives a night. Delete with the log.
-                Section {
-                    NavigationLink("Diagnostics") {
-                        SessionLogView()
-                    }
-                }
+                actions
             }
-            .navigationTitle("Alarm")
-            .alert("Couldn't Set Alarm", isPresented: showsError, presenting: errorMessage) { _ in
+            .padding(.horizontal, 28)
+            .grainyBackground()
+            .toolbar(.hidden, for: .navigationBar)
+            .sheet(isPresented: $isEditingTime) {
+                TimePickerSheet(time: $time)
+            }
+            .alert("Couldn't start", isPresented: showsError, presenting: errorMessage) { _ in
             } message: { message in
                 Text(message)
             }
         }
-        .task {
-            await store.observeAlarm()
-        }
+        .tint(Theme.accent)
+        .task { await store.observeAlarm() }
         .onChange(of: store.alarm?.id, initial: true) {
             if let alarmTime = store.alarm?.time { time = alarmTime }
         }
     }
 
+    // MARK: - Pieces
+
+    private var header: some View {
+        HStack {
+            Text("Woybangun").tracked(Theme.ink)
+            Spacer()
+            Text(isSleeping ? session.phase.rawValue : "Idle")
+                .tracked(isSleeping ? Theme.accent : Theme.muted)
+        }
+        .padding(.top, 16)
+    }
+
+    private var clock: some View {
+        VStack(spacing: 20) {
+            Text(isSleeping ? "Alarm at" : "Wake up at").tracked()
+
+            Button {
+                isEditingTime = true
+            } label: {
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text(String(format: "%02d", component(.hour)))
+                        .foregroundStyle(Theme.ink)
+                    Text(":")
+                        .foregroundStyle(Theme.muted)
+                    Text(String(format: "%02d", component(.minute)))
+                        .foregroundStyle(Theme.muted)
+                }
+                .font(Theme.clock(80))
+                .monospacedDigit()
+            }
+            .buttonStyle(.plain)
+            // Not `.disabled`: that dims the whole clock and loses the two-tone contrast.
+            // The time is fixed once the night is underway, but it should still read clearly.
+            .allowsHitTesting(!isSleeping)
+
+            TickRuler(progress: session.progress)
+
+            if isSleeping, let dawn = session.dawnDate, session.phase == .night {
+                Text("Morning sounds at \(dawn.formatted(date: .omitted, time: .shortened))")
+                    .tracked()
+            }
+        }
+    }
+
+    private var actions: some View {
+        VStack(spacing: 18) {
+            Button(action: primaryAction) {
+                Text(isSleeping ? "End sleep" : "Start sleep")
+                    .font(Theme.body)
+                    .tracking(1.6)
+                    .textCase(.uppercase)
+                    .foregroundStyle(isSleeping ? Theme.ink : Theme.background)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 19)
+                    .background {
+                        if isSleeping {
+                            RoundedRectangle(cornerRadius: 4).stroke(Theme.line, lineWidth: 1)
+                        } else {
+                            RoundedRectangle(cornerRadius: 4).fill(Theme.accent)
+                        }
+                    }
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                SessionLogView()
+            } label: {
+                HStack(spacing: 6) {
+                    Text("Diagnostics")
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 9, weight: .medium))
+                }
+                .tracked()
+            }
+        }
+        .padding(.bottom, 24)
+    }
+
+    // MARK: - Actions
+
     private var showsError: Binding<Bool> {
         Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })
     }
 
-    private func setAlarm() async {
-        do {
-            try await store.setAlarm(at: time)
-        } catch {
-            errorMessage = error.localizedDescription
+    private func component(_ unit: Calendar.Component) -> Int {
+        Calendar.current.component(unit, from: time)
+    }
+
+    /// One button for the whole flow: starting sleep also arms the alarm, so there is never a
+    /// state where the soundscape is running with nothing to wake you.
+    private func primaryAction() {
+        if isSleeping {
+            session.stop()
+            return
         }
-    }
-
-    private func cancelAlarm() {
-        // The session has no endpoint without an alarm, so it goes too.
-        session.stop()
-        try? store.cancelAlarm()
-    }
-
-    private func startSleep() {
-        guard let alarmTime = store.alarm?.time else { return }
-        session.start(alarmTime: alarmTime)
+        Task {
+            do {
+                if store.alarm == nil {
+                    try await store.setAlarm(at: time)
+                }
+                // `time` is what we just armed; store.alarm arrives later on the update stream.
+                session.start(alarmTime: time)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
     }
 }
 

@@ -12,6 +12,7 @@ struct woybangunApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(.dark)   // keeps system controls (wheel, nav bar) dark
         }
     }
 }

@@ -15,34 +15,23 @@ struct SessionLogView: View {
     @State private var isSending = false
 
     var body: some View {
-        Form {
-            Section {
-                Button("Light On (full)") { send { await LightController.shared.setBrightness(255) } }
-                Button("Ramp Over 60s") { send { await LightController.shared.startRamp(seconds: 60) } }
-                Button("Light Off", role: .destructive) { send { await LightController.shared.turnOff() } }
-                if !lightResult.isEmpty {
-                    LabeledContent("Result", value: lightResult)
-                        .font(.caption)
-                }
-            } header: {
-                Text("Wake Light")
-            } footer: {
-                Text("Sends straight to the strip over Bluetooth, without waiting for an alarm.")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+                wakeLight
+                log
             }
-
-            Section("\(logCount) log entries, newest first") {
-                Text(logText)
-                    .font(.system(.caption, design: .monospaced))
-                    .textSelection(.enabled)
-                Button("Clear Log") {
-                    SessionLog.clear()
-                    refresh()
-                }
+            .padding(.horizontal, 28)
+            .padding(.vertical, 20)
+        }
+        .grainyBackground()
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Theme.background, for: .navigationBar)
+        .toolbar {
+            // Keeps the system back button, but puts the title in the app's own type.
+            ToolbarItem(placement: .principal) {
+                Text("Diagnostics").tracked(Theme.ink)
             }
         }
-        .navigationTitle("Diagnostics")
-        .navigationBarTitleDisplayMode(.inline)
-        .disabled(isSending)
         .task {
             while !Task.isCancelled {
                 refresh()
@@ -51,13 +40,74 @@ struct SessionLogView: View {
         }
     }
 
-    private func send(_ command: @escaping () async -> String) {
-        isSending = true
-        lightResult = "sending…"
-        Task {
-            lightResult = await command()
-            isSending = false
+    // MARK: - Sections
+
+    private var wakeLight: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Wake light").tracked(Theme.ink)
+
+            HStack(spacing: 10) {
+                pill("On") { await LightController.shared.setBrightness(255) }
+                pill("Ramp 60s") { await LightController.shared.startRamp(seconds: 60) }
+                pill("Off") { await LightController.shared.turnOff() }
+            }
+
+            Text(lightResult.isEmpty ? "Sends over Bluetooth, no alarm needed" : lightResult)
+                .font(Theme.readout)
+                .foregroundStyle(lightResult.isEmpty ? Theme.muted : Theme.accent)
+                .animation(.default, value: lightResult)
         }
+    }
+
+    private var log: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Session log").tracked(Theme.ink)
+                Spacer()
+                Text("\(logCount)").tracked()
+            }
+
+            TickRuler(progress: nil, height: 14)
+
+            Text(logText)
+                .font(Theme.readout)
+                .foregroundStyle(Theme.muted)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button {
+                SessionLog.clear()
+                refresh()
+            } label: {
+                Text("Clear").tracked(Theme.muted)
+            }
+            .padding(.top, 4)
+        }
+    }
+
+    // MARK: - Bits
+
+    private func pill(_ title: String, action: @escaping () async -> String) -> some View {
+        Button {
+            isSending = true
+            lightResult = "sending…"
+            Task {
+                lightResult = await action()
+                isSending = false
+            }
+        } label: {
+            Text(title)
+                .font(Theme.label)
+                .tracking(1.4)
+                .textCase(.uppercase)
+                .foregroundStyle(Theme.ink)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 13)
+                .background(RoundedRectangle(cornerRadius: 3).stroke(Theme.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .disabled(isSending)
+        .opacity(isSending ? 0.4 : 1)
     }
 
     private func refresh() {
