@@ -7,12 +7,7 @@
 
 import SwiftUI
 
-/// The ruler strip that recurs across the references — a row of hairlines with every fifth
-/// one taller, and an optional marker showing progress through the night.
-///
-/// Drawn with `Canvas` rather than a stack of shapes: one draw call instead of ~60 views.
 struct TickRuler: View {
-    /// 0…1, or nil for no marker.
     var progress: Double?
     var height: CGFloat = 28
 

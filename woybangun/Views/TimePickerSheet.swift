@@ -7,11 +7,6 @@
 
 import SwiftUI
 
-/// Editing the wake time.
-///
-/// The wheel is Apple's own: the app owns the look of the screen, but not the mechanics of
-/// picking a time. Rebuilding that interaction would be a lot of gesture code to end up
-/// somewhere worse.
 struct TimePickerSheet: View {
     @Binding var time: Date
     @Environment(\.dismiss) private var dismiss
@@ -30,7 +25,7 @@ struct TimePickerSheet: View {
                 Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity)
-            .background(Theme.background)   // no grain here — it fights the wheel
+            .background(Theme.background)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }

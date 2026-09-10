@@ -1,33 +1,15 @@
 // Copy this file to config.h and adjust for your hardware.
-// config.h is gitignored so machine-specific settings stay out of the repo.
-//
-// Note: BLE needs no Wi-Fi name or password — there is no network involved at all.
 
-// The name the strip advertises over Bluetooth. Must match LightController.swift.
 #define DEVICE_NAME    "woybangun"
 
-// ── Which strip do you have? Set exactly one to 1. ──────────────────────────
-// Addressable: WS2812B / SK6812 / WS2815. Three wires, one DATA line.
-//   Wire DATA to LED_PIN. No extra components needed.
 #define STRIP_ADDRESSABLE   1
-// Analog: 12V/24V RGB or white strip driven through N-channel MOSFETs.
-//   Never wire an analog strip straight to a GPIO — it will destroy the pin.
 #define STRIP_ANALOG_PWM    0
 
-// GPIO2 is a plain pin on the C6. Avoid 8/9/15 (strapping/BOOT), 16/17 (serial console),
-// and 12/13 (USB) — a strip on those can stop the board booting or flashing.
-// To smoke-test with no strip attached: LED_PIN 8, LED_COUNT 1 = onboard RGB LED on a DevKitC-1.
-#define LED_PIN    2      // DATA pin (addressable) or first MOSFET gate (analog)
-#define LED_COUNT  60     // addressable only: number of pixels on the strip
+#define LED_PIN    2
+#define LED_COUNT  60
 
-// ── Power budget ────────────────────────────────────────────────────────────
-// With no separate supply the strip runs off the devkit's 5V pin, fed from USB. That's
-// ~500 mA total and the ESP32's own radio takes a chunk of it, so only budget what's left
-// for the strip. The firmware derives a brightness ceiling from this, so a long strip
-// physically cannot brown the board out. Raise it once the strip has its own 5V supply.
 #define STRIP_BUDGET_MA  300
 
-// Analog only: gate pins per channel. Set unused ones to -1.
 #define PIN_R  -1
 #define PIN_G  -1
 #define PIN_B  -1

@@ -1,22 +1,3 @@
-// woybangun_light — ESP32-C6 wake light, over Bluetooth LE.
-//
-// Ramps a cool-white LED strip from dark to full over the hour before the alarm, so the
-// light climbs alongside the app's dawn audio.
-//
-// Why BLE and not Wi-Fi: managed networks (co-living, hotels, offices) commonly run a
-// stateful per-client filter, so a phone cannot open a connection *to* a device on the
-// network even when both are joined to it. BLE has no router in the path at all, so it
-// works anywhere the phone is in the room.
-//
-// The ramp runs here, not on the phone: the app sends one command at T-60, and the strip
-// finishes the climb on its own even if the phone wanders off or Bluetooth drops.
-//
-// Commands, written as plain text to the command characteristic:
-//   ramp:3600   ramp dark -> full over N seconds
-//   on:200      set brightness now, 0-255 (for checking wiring)
-//   off         off
-// The status characteristic reads back as: "<state> level=<n> max_duty=<f>"
-
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
@@ -27,16 +8,12 @@
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 #endif
 
-// Generated once and shared with the iOS app — these must match LightController.swift.
 #define SERVICE_UUID  "91e992b2-43df-441e-9ecb-9cd5bb334ee3"
 #define COMMAND_UUID  "6f101ba6-507a-40ed-a04a-52897ed36232"
 #define STATUS_UUID   "b5bdcb7c-7538-49e4-a116-89a521331c4c"
 
-// Cool white, ~6000K. Blue-weighted on purpose: cool light suppresses melatonin, which is
-// the whole reason for waking to it.
 const uint8_t COOL_R = 200, COOL_G = 225, COOL_B = 255;
 
-// Ceiling on the duty cycle, worked out at boot from LED_COUNT and STRIP_BUDGET_MA.
 float    maxDuty       = 1.0f;
 
 bool     rampActive     = false;
@@ -44,17 +21,10 @@ uint32_t rampStartMs    = 0;
 uint32_t rampDurationMs = 0;
 uint8_t  currentLevel   = 0;
 
-// Once the ramp reaches full the strip simply stays lit. There is deliberately no timeout:
-// the only thing that turns it off is an explicit "off" command from the app's Diagnostics
-// screen. At the capped 300 mA budget that is wasteful at worst, never unsafe.
 bool     holding      = false;
 
 BLECharacteristic *statusChar = nullptr;
 
-// ── LED output ──────────────────────────────────────────────────────────────
-
-// A WS2812B pixel is three ~20 mA dies, so ~60 mA at full white. Our cool white sits a
-// little under full, which buys back some headroom.
 static void computePowerCap() {
 #if STRIP_ADDRESSABLE
   const float colorFraction = (COOL_R + COOL_G + COOL_B) / (3.0f * 255.0f);
@@ -62,7 +32,7 @@ static void computePowerCap() {
   const float cap = (float)STRIP_BUDGET_MA / (LED_COUNT * perPixelMa);
   maxDuty = cap < 1.0f ? cap : 1.0f;
 #else
-  maxDuty = 1.0f;   // analog strips have their own supply behind the MOSFETs
+  maxDuty = 1.0f;
 #endif
 }
 
@@ -75,16 +45,13 @@ void lightBegin() {
 #elif STRIP_ANALOG_PWM
   const int pins[3] = {PIN_R, PIN_G, PIN_B};
   for (int p : pins) {
-    if (p >= 0) ledcAttach(p, 5000, 8);   // 5 kHz, 8-bit — above flicker perception
+    if (p >= 0) ledcAttach(p, 5000, 8);
   }
 #endif
 }
 
-// `level` is perceptual: 0 is off, 255 is full. Gamma and the power cap are applied here.
 void lightWrite(uint8_t level) {
   currentLevel = level;
-  // Perceived brightness goes roughly as duty^(1/2.2), so raise to 2.2 to make the ramp
-  // look linear instead of rushing at the start and flattening out.
   float t = level / 255.0f;
   float duty = powf(t, 2.2f) * maxDuty;
 
@@ -101,8 +68,6 @@ void lightWrite(uint8_t level) {
   if (PIN_B >= 0) ledcWrite(PIN_B, (uint32_t)(COOL_B * duty));
 #endif
 }
-
-// ── Commands ────────────────────────────────────────────────────────────────
 
 void publishStatus() {
   const char *state = rampActive ? "ramping" : (holding ? "holding" : "idle");
@@ -146,7 +111,6 @@ class CommandCallbacks : public BLECharacteristicCallbacks {
   }
 };
 
-// Keep advertising after a disconnect, so the phone can always find us again.
 class ServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *server) override {
     Serial.println("phone connected");
@@ -157,8 +121,6 @@ class ServerCallbacks : public BLEServerCallbacks {
   }
 };
 
-// ── Setup ───────────────────────────────────────────────────────────────────
-
 void setup() {
   Serial.begin(115200);
   delay(300);
@@ -168,7 +130,7 @@ void setup() {
                 maxDuty * 100.0f, powf(maxDuty, 1.0f / 2.2f) * 100.0f,
                 LED_COUNT, STRIP_BUDGET_MA);
 
-  BLEDevice::init(DEVICE_NAME);                  // the name the phone advertises/scans for
+  BLEDevice::init(DEVICE_NAME);
   BLEServer *server = BLEDevice::createServer();
   server->setCallbacks(new ServerCallbacks());
 
@@ -198,7 +160,7 @@ void loop() {
     if (elapsed >= rampDurationMs) {
       lightWrite(255);
       rampActive = false;
-      holding = true;                        // full brightness, and it stays that way
+      holding = true;
       publishStatus();
     } else {
       lightWrite((uint8_t)(255.0f * elapsed / rampDurationMs));

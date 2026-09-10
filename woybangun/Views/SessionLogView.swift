@@ -2,8 +2,7 @@
 //  SessionLogView.swift
 //  woybangun
 //
-//  TEMPORARY — diagnostics for verifying the sleep session survives overnight and for
-//  bringing up the wake light. Delete alongside SessionLog once both are confirmed.
+//  Created by Dimas Putra on 09/09/26.
 //
 
 import SwiftUI
@@ -27,7 +26,6 @@ struct SessionLogView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Theme.background, for: .navigationBar)
         .toolbar {
-            // Keeps the system back button, but puts the title in the app's own type.
             ToolbarItem(placement: .principal) {
                 Text("Diagnostics").tracked(Theme.ink)
             }

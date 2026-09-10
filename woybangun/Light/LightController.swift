@@ -8,24 +8,13 @@
 import CoreBluetooth
 import Foundation
 
-/// Talks to the ESP32-C6 wake light over Bluetooth LE.
-///
-/// BLE rather than Wi-Fi because managed networks (co-living, hotels, offices) commonly run a
-/// stateful per-client filter: the phone cannot open a connection *to* a device even when both
-/// are on the same network. BLE has no router in the path, so it works wherever the phone is
-/// in the room.
-///
-/// Every call is best-effort and returns a description rather than throwing — the light is a
-/// bonus, and an unplugged strip must never disturb the alarm.
 @MainActor
 final class LightController: NSObject {
     static let shared = LightController()
 
-    /// Must match the UUIDs in the firmware's woybangun_light.ino.
     private static let serviceUUID = CBUUID(string: "91E992B2-43DF-441E-9ECB-9CD5BB334EE3")
     private static let commandUUID = CBUUID(string: "6F101BA6-507A-40ED-A04A-52897ED36232")
 
-    /// Scan, connect, discover and write should all fit comfortably inside this.
     private static let timeout: TimeInterval = 15
 
     private var central: CBCentralManager!
@@ -36,14 +25,11 @@ final class LightController: NSObject {
 
     private override init() {
         super.init()
-        // Delivered on the main queue, which keeps every callback on this actor.
         central = CBCentralManager(delegate: self, queue: .main)
     }
 
     // MARK: - Public API
 
-    /// Hands the ramp over in one message, so the strip still finishes the climb even if the
-    /// phone wanders out of range afterwards.
     func startRamp(seconds: Int) async -> String {
         await send("ramp:\(max(1, seconds))")
     }
@@ -52,7 +38,6 @@ final class LightController: NSObject {
         await send("off")
     }
 
-    /// For checking the wiring: 0–255.
     func setBrightness(_ level: Int) async -> String {
         await send("on:\(min(max(level, 0), 255))")
     }
@@ -76,7 +61,6 @@ final class LightController: NSObject {
         }
     }
 
-    /// Resumes the waiting caller exactly once and tears the connection down.
     private func finish(_ result: String) {
         guard let continuation = pending else { return }
         pending = nil
@@ -108,7 +92,6 @@ final class LightController: NSObject {
 
 extension LightController: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        // Nothing to do: `send` checks the state when it's actually needed.
     }
 
     func centralManager(
@@ -117,7 +100,7 @@ extension LightController: CBCentralManagerDelegate {
         advertisementData: [String: Any],
         rssi RSSI: NSNumber
     ) {
-        guard strip == nil else { return }     // discovery repeats until the scan stops
+        guard strip == nil else { return }
         central.stopScan()
         strip = peripheral
         peripheral.delegate = self

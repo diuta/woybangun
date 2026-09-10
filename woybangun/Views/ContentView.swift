@@ -79,8 +79,6 @@ struct ContentView: View {
                 .monospacedDigit()
             }
             .buttonStyle(.plain)
-            // Not `.disabled`: that dims the whole clock and loses the two-tone contrast.
-            // The time is fixed once the night is underway, but it should still read clearly.
             .allowsHitTesting(!isSleeping)
 
             TickRuler(progress: session.progress)
@@ -94,9 +92,6 @@ struct ContentView: View {
         }
     }
 
-    /// Suggested wake times based on sleep cycles. A full cycle is roughly 90 minutes, so
-    /// waking after a whole number of cycles — here 4 (6h) or 5 (7.5h) — tends to feel better
-    /// than waking mid-cycle. Tapping one arms that time; the `?` explains why.
     private var cycleSuggestions: some View {
         VStack(spacing: 10) {
             HStack(spacing: 10) {
@@ -127,7 +122,6 @@ struct ContentView: View {
         }
     }
 
-    /// One tappable suggested wake time, `hours` from now, shown as its clock time.
     private func suggestion(hours: Double) -> some View {
         let target = Date.now.addingTimeInterval(hours * 3600)
         return Button {
@@ -188,8 +182,6 @@ struct ContentView: View {
         Calendar.current.component(unit, from: time)
     }
 
-    /// One button for the whole flow: starting sleep also arms the alarm, so there is never a
-    /// state where the soundscape is running with nothing to wake you.
     private func primaryAction() {
         if isSleeping {
             session.stop()
@@ -200,7 +192,6 @@ struct ContentView: View {
                 if store.alarm == nil {
                     try await store.setAlarm(at: time)
                 }
-                // `time` is what we just armed; store.alarm arrives later on the update stream.
                 session.start(alarmTime: time)
             } catch {
                 errorMessage = error.localizedDescription

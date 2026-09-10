@@ -9,7 +9,6 @@ import AlarmKit
 import Observation
 import SwiftUI
 
-/// AlarmKit requires a concrete metadata type, but this app attaches no extra data to its alarm.
 struct AlarmData: AlarmMetadata {}
 
 enum AlarmStoreError: LocalizedError {
@@ -20,7 +19,6 @@ enum AlarmStoreError: LocalizedError {
     }
 }
 
-/// Manages the app's single alarm.
 @MainActor
 @Observable
 final class AlarmStore {
@@ -28,7 +26,6 @@ final class AlarmStore {
 
     private let manager = AlarmManager.shared
 
-    /// Keeps `alarm` in sync, including changes made while the app wasn't running.
     func observeAlarm() async {
         for await alarms in manager.alarmUpdates {
             alarm = alarms.first
@@ -47,7 +44,6 @@ final class AlarmStore {
             tintColor: .accentColor
         )
 
-        // `sound` is left at its default: AlarmKit's own alarm tone.
         _ = try await manager.schedule(
             id: UUID(),
             configuration: .alarm(schedule: schedule, attributes: attributes)
@@ -65,7 +61,6 @@ final class AlarmStore {
 }
 
 extension Alarm {
-    /// The time of day this alarm is scheduled for.
     var time: Date? {
         guard case .relative(let relative)? = schedule else { return nil }
         return Calendar.current.date(

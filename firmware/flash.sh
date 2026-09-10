@@ -1,18 +1,10 @@
 #!/usr/bin/env bash
-# Compile and flash a sketch to the ESP32-C6, finding the port automatically.
-#
-#   ./flash.sh woybangun_light           compile + upload
-#   ./flash.sh woybangun_light monitor   ...then watch the serial output
-#
-# CDCOnBoot=cdc is required: without it Serial goes to the UART pins, not USB,
-# and you see nothing.
 set -euo pipefail
 
 FQBN="esp32:esp32:esp32c6:CDCOnBoot=cdc"
 SKETCH="${1:?usage: ./flash.sh <sketch-folder> [monitor]}"
 DIR="$(cd "$(dirname "$0")" && pwd)/$SKETCH"
 
-# Prefer a recognised ESP32; fall back to any USB serial device.
 PORT="$(arduino-cli board list | awk '/ESP32/ {print $1; exit}')"
 [ -z "$PORT" ] && PORT="$(arduino-cli board list | awk '/usbmodem/ {print $1; exit}')"
 
