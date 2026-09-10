@@ -74,7 +74,7 @@ struct ContentView: View {
                     Text(String(format: "%02d", component(.minute)))
                         .foregroundStyle(Theme.muted)
                 }
-                .font(Theme.clock(80))
+                .font(Theme.clock)
                 .monospacedDigit()
             }
             .buttonStyle(.plain)

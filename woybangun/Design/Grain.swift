@@ -13,7 +13,7 @@ import SwiftUI
 /// the speckles stay pixel-sized on any screen. `.allowsHitTesting(false)` keeps it from eating
 /// taps, and `.overlay` means it sits above content without affecting layout.
 struct Grain: View {
-    var opacity: Double = 0.09
+    private let opacity = 0.09
 
     var body: some View {
         if let texture = UIImage(named: "grain") {
@@ -31,8 +31,8 @@ struct Grain: View {
 
 extension View {
     /// Paints the warm background and lays grain over the whole screen.
-    func grainyBackground(_ opacity: Double = 0.09) -> some View {
+    func grainyBackground() -> some View {
         self.background(Theme.background.ignoresSafeArea())
-            .overlay(Grain(opacity: opacity))
+            .overlay(Grain())
     }
 }
