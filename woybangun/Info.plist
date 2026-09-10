@@ -8,6 +8,10 @@
 	<string>We’ll schedule alerts for the alarms you create in this app.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>woybangun turns on your wake light before the alarm goes off.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

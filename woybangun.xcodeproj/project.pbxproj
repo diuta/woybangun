@@ -6,7 +6,36 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		81AA000F000000000000AA0F /* WoybangunWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 81AA0001000000000000AA01 /* WoybangunWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		81AA000A000000000000AA0A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 818DE30830503FAE00624D05 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 81AA0004000000000000AA04;
+			remoteInfo = WoybangunWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		81AA0008000000000000AA08 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				81AA000F000000000000AA0F /* WoybangunWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		81AA0001000000000000AA01 /* WoybangunWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WoybangunWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		81C4129C3051AE9B0042751E /* woybangun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = woybangun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -17,6 +46,13 @@
 				Info.plist,
 			);
 			target = 818DE30F30503FAE00624D05 /* woybangun */;
+		};
+		81AA000E000000000000AA0E /* Exceptions for "WoybangunWidgets" folder in "WoybangunWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 81AA0004000000000000AA04 /* WoybangunWidgets */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -29,10 +65,30 @@
 			path = woybangun;
 			sourceTree = "<group>";
 		};
+		81AA0002000000000000AA02 /* WoybangunWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				81AA000E000000000000AA0E /* Exceptions for "WoybangunWidgets" folder in "WoybangunWidgets" target */,
+			);
+			path = WoybangunWidgets;
+			sourceTree = "<group>";
+		};
+		81AA0003000000000000AA03 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		818DE30D30503FAE00624D05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81AA0006000000000000AA06 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -45,8 +101,11 @@
 		818DE30730503FAE00624D05 = {
 			isa = PBXGroup;
 			children = (
+				81AA0003000000000000AA03 /* Shared */,
 				818DE31230503FAE00624D05 /* woybangun */,
+				81AA0002000000000000AA02 /* WoybangunWidgets */,
 				81C4129C3051AE9B0042751E /* woybangun.app */,
+				81AA0001000000000000AA01 /* WoybangunWidgets.appex */,
 			);
 			sourceTree = "<group>";
 		};
@@ -60,13 +119,16 @@
 				818DE30C30503FAE00624D05 /* Sources */,
 				818DE30D30503FAE00624D05 /* Frameworks */,
 				818DE30E30503FAE00624D05 /* Resources */,
+				81AA0008000000000000AA08 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				81AA0009000000000000AA09 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				818DE31230503FAE00624D05 /* woybangun */,
+				81AA0003000000000000AA03 /* Shared */,
 			);
 			name = woybangun;
 			packageProductDependencies = (
@@ -74,6 +136,29 @@
 			productName = woybangun;
 			productReference = 81C4129C3051AE9B0042751E /* woybangun.app */;
 			productType = "com.apple.product-type.application";
+		};
+		81AA0004000000000000AA04 /* WoybangunWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 81AA000D000000000000AA0D /* Build configuration list for PBXNativeTarget "WoybangunWidgets" */;
+			buildPhases = (
+				81AA0005000000000000AA05 /* Sources */,
+				81AA0006000000000000AA06 /* Frameworks */,
+				81AA0007000000000000AA07 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				81AA0002000000000000AA02 /* WoybangunWidgets */,
+				81AA0003000000000000AA03 /* Shared */,
+			);
+			name = WoybangunWidgets;
+			packageProductDependencies = (
+			);
+			productName = WoybangunWidgets;
+			productReference = 81AA0001000000000000AA01 /* WoybangunWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -86,6 +171,9 @@
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					818DE30F30503FAE00624D05 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					81AA0004000000000000AA04 = {
 						CreatedOnToolsVersion = 26.6;
 					};
 				};
@@ -105,12 +193,20 @@
 			projectRoot = "";
 			targets = (
 				818DE30F30503FAE00624D05 /* woybangun */,
+				81AA0004000000000000AA04 /* WoybangunWidgets */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		818DE30E30503FAE00624D05 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81AA0007000000000000AA07 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -127,7 +223,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		81AA0005000000000000AA05 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		81AA0009000000000000AA09 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 81AA0004000000000000AA04 /* WoybangunWidgets */;
+			targetProxy = 81AA000A000000000000AA0A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		818DE31930503FAF00624D05 /* Debug */ = {
@@ -336,6 +447,72 @@
 			};
 			name = Release;
 		};
+		81AA000B000000000000AA0B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 555V9YK43S;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WoybangunWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WoybangunWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diuta.woybangun.WoybangunWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		81AA000C000000000000AA0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 555V9YK43S;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WoybangunWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WoybangunWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diuta.woybangun.WoybangunWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -353,6 +530,15 @@
 			buildConfigurations = (
 				818DE31C30503FAF00624D05 /* Debug */,
 				818DE31D30503FAF00624D05 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		81AA000D000000000000AA0D /* Build configuration list for PBXNativeTarget "WoybangunWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				81AA000B000000000000AA0B /* Debug */,
+				81AA000C000000000000AA0C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

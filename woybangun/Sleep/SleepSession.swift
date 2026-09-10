@@ -44,6 +44,7 @@ final class SleepSession {
     private init() {
         UIDevice.current.isBatteryMonitoringEnabled = true
         SessionLog.write("──────── app launched")
+        SleepLiveActivityController.clearStale()
 
         observe(AVAudioSession.interruptionNotification, handler: handleInterruption)
         observe(AVAudioSession.mediaServicesWereResetNotification) { _ in
@@ -89,6 +90,14 @@ final class SleepSession {
             alarm at \(SessionLog.time(alarm))
             """)
 
+        SleepLiveActivityController.start(
+            startedAt: startedAt!,
+            dawnDate: dawnDate!,
+            endDate: alarm,
+            isDawn: phase == .dawn,
+            phaseName: phase.rawValue
+        )
+
         ticker?.invalidate()
         ticker = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             guard let self else { return }
@@ -117,6 +126,7 @@ final class SleepSession {
         startedAt = nil
         dawnDate = nil
         endDate = nil
+        SleepLiveActivityController.end()
         SessionLog.write("session ended")
     }
 
@@ -143,6 +153,13 @@ final class SleepSession {
         SessionLog.write("▶︎ morning sounds fading in over \(Int(AmbiencePlayer.crossfade))s")
 
         guard let end = endDate else { return }
+
+        SleepLiveActivityController.update(
+            isDawn: true,
+            phaseName: phase.rawValue,
+            endDate: end
+        )
+
         let seconds = Int(end.timeIntervalSinceNow)
         Task { @MainActor in
             let result = await LightController.shared.startRamp(seconds: seconds)
