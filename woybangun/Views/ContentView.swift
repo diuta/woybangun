@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var time = Date()
     @State private var isEditingTime = false
     @State private var errorMessage: String?
+    @State private var showsCycleInfo = false
 
     private let session = SleepSession.shared
 
@@ -87,8 +88,60 @@ struct ContentView: View {
             if isSleeping, let dawn = session.dawnDate, session.phase == .night {
                 Text("Morning sounds at \(dawn.formatted(date: .omitted, time: .shortened))")
                     .tracked()
+            } else if !isSleeping {
+                cycleSuggestions
             }
         }
+    }
+
+    /// Suggested wake times based on sleep cycles. A full cycle is roughly 90 minutes, so
+    /// waking after a whole number of cycles — here 4 (6h) or 5 (7.5h) — tends to feel better
+    /// than waking mid-cycle. Tapping one arms that time; the `?` explains why.
+    private var cycleSuggestions: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                Text("Suggested").tracked()
+
+                suggestion(hours: 6)
+                suggestion(hours: 7.5)
+
+                Button {
+                    showsCycleInfo = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.muted)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Why these times")
+            }
+        }
+        .popover(isPresented: $showsCycleInfo) {
+            Text("Sleep runs in cycles of about 90 minutes. Waking at the end of a cycle — after a whole number of them, like 4 (6h) or 5 (7.5h) — usually feels more rested than waking in the middle of one.")
+                .font(Theme.body)
+                .foregroundStyle(Theme.ink)
+                .multilineTextAlignment(.leading)
+                .padding(20)
+                .frame(width: 260)
+                .presentationCompactAdaptation(.popover)
+        }
+    }
+
+    /// One tappable suggested wake time, `hours` from now, shown as its clock time.
+    private func suggestion(hours: Double) -> some View {
+        let target = Date.now.addingTimeInterval(hours * 3600)
+        return Button {
+            time = target
+        } label: {
+            Text(target.formatted(date: .omitted, time: .shortened))
+                .font(Theme.label)
+                .tracking(1.2)
+                .foregroundStyle(Theme.accent)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(RoundedRectangle(cornerRadius: 3).stroke(Theme.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private var actions: some View {
