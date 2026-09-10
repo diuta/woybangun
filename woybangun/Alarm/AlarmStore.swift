@@ -54,11 +54,6 @@ final class AlarmStore {
         )
     }
 
-    func cancelAlarm() throws {
-        guard let alarm else { return }
-        try manager.cancel(id: alarm.id)
-    }
-
     private func isAuthorized() async -> Bool {
         switch manager.authorizationState {
         case .authorized: true

@@ -19,8 +19,6 @@ enum Theme {
     // read as cold and clinical; the references are all warm.
 
     static let background = Color(red: 0.09, green: 0.086, blue: 0.078)
-    /// Cards and raised surfaces, a step up from the background.
-    static let surface = Color(red: 0.145, green: 0.137, blue: 0.125)
     /// Primary text.
     static let ink = Color(red: 0.937, green: 0.925, blue: 0.894)
     /// Secondary text, and the muted half of the split time display.
@@ -35,9 +33,7 @@ enum Theme {
     // from reflowing as the numbers change.
 
     /// The hero clock.
-    static func clock(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .medium, design: .monospaced)
-    }
+    static let clock = Font.system(size: 80, weight: .medium, design: .monospaced)
 
     /// Small uppercase labels. Pair with `.tracked()`.
     static let label = Font.system(size: 11, weight: .medium, design: .monospaced)

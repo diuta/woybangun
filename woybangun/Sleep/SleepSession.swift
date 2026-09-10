@@ -48,6 +48,11 @@ final class SleepSession {
 
     @ObservationIgnored private let player = AmbiencePlayer()
     @ObservationIgnored private var ticker: Timer?
+    @ObservationIgnored private var endTimer: Timer?
+
+    /// Stop this long before the alarm. The soundscape has to be gone — and the audio session
+    /// released — before AlarmKit sounds, or our own audio drowns it out.
+    private static let handoverLead: TimeInterval = 3
 
     private init() {
         UIDevice.current.isBatteryMonitoringEnabled = true
@@ -103,6 +108,18 @@ final class SleepSession {
             guard let self else { return }
             MainActor.assumeIsolated { self.tick() }
         }
+
+        // The minute tick is too coarse for the handover, so aim at it directly. `tick()`
+        // still catches it as a backstop if this timer is ever late.
+        endTimer?.invalidate()
+        let handover = max(alarm.timeIntervalSinceNow - Self.handoverLead, 0)
+        endTimer = Timer.scheduledTimer(withTimeInterval: handover, repeats: false) { [weak self] _ in
+            guard let self else { return }
+            MainActor.assumeIsolated {
+                SessionLog.write("handing audio over to the alarm")
+                self.stop()
+            }
+        }
     }
 
     /// Ending the session never touches the light. Once the strip is lit it stays lit until
@@ -111,6 +128,8 @@ final class SleepSession {
     func stop() {
         ticker?.invalidate()
         ticker = nil
+        endTimer?.invalidate()
+        endTimer = nil
         player.stop()
 
         phase = .idle

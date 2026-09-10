@@ -77,7 +77,10 @@ final class AmbiencePlayer {
         fadeOut = nil
         night?.stop(); night = nil
         dawn?.stop(); dawn = nil
-        try? AVAudioSession.sharedInstance().setActive(false)
+        // `.notifyOthersOnDeactivation` is what actually hands the route back. Without it the
+        // alarm can fire into a session we're still holding, and you hear nothing.
+        try? AVAudioSession.sharedInstance()
+            .setActive(false, options: .notifyOthersOnDeactivation)
     }
 
     /// Loads a file from `Audio/` as an endlessly looping player.

@@ -48,7 +48,6 @@ uint8_t  currentLevel   = 0;
 // the only thing that turns it off is an explicit "off" command from the app's Diagnostics
 // screen. At the capped 300 mA budget that is wasteful at worst, never unsafe.
 bool     holding      = false;
-uint32_t holdStartMs  = 0;
 
 BLECharacteristic *statusChar = nullptr;
 
@@ -199,8 +198,7 @@ void loop() {
     if (elapsed >= rampDurationMs) {
       lightWrite(255);
       rampActive = false;
-      holding = true;                        // full brightness as the alarm fires
-      holdStartMs = millis();
+      holding = true;                        // full brightness, and it stays that way
       publishStatus();
     } else {
       lightWrite((uint8_t)(255.0f * elapsed / rampDurationMs));
